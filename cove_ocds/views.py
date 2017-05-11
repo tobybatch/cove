@@ -97,6 +97,30 @@ def explore_ocds(request, pk):
                     'error': format(err)
                 })
 
+            if not isinstance(json_data, dict):
+                raise CoveInputDataError(context={
+                    'sub_title': _("Sorry we can't process that data"),
+                    'link': 'index',
+                    'link_text': _('Try Again'),
+                    'msg': _('TODO: not a dict'),
+                })
+
+            if not ('releases' in json_data or 'records' in json_data):
+                raise CoveInputDataError(context={
+                    'sub_title': _("Sorry we can't process that data"),
+                    'link': 'index',
+                    'link_text': _('Try Again'),
+                    'msg': _('TODO: no releases or records key'),
+                })
+
+            if not isinstance(json_data.get('releases', json_data.get('records')), list):
+                raise CoveInputDataError(context={
+                    'sub_title': _("Sorry we can't process that data"),
+                    'link': 'index',
+                    'link_text': _('Try Again'),
+                    'msg': _('TODO: releases/records key not a list'),
+                })
+
             select_version = post_version_choice or db_data.schema_version
             schema_ocds = SchemaOCDS(select_version=select_version, release_data=json_data)
             
